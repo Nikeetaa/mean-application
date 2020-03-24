@@ -8,7 +8,7 @@ const postRoutes = require('./routes/post');
 const userRoutes = require('./routes/user');
 
 //connect to db
-mongoose.connect("mongodb+srv://nikeetaa:NJSwo4NuApv5MHir@cluster0-szl7u.mongodb.net/node-angular?retryWrites=true&w=majority")
+mongoose.connect("mongodb+srv://nikeetaa:NJSwo4NuApv5MHir@cluster0-szl7u.mongodb.net/node-angular")
   .then(() => {
     console.log("Connected to database");
   })
