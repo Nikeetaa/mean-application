@@ -52,4 +52,10 @@ export class AuthService {
         }
     })
   }
+
+  logout() {
+    this.token = null;
+    this.isAuthenticated = false;
+    this.authStatusListener.next(false); //sends all users of subscription that value is changed
+  }
 }
