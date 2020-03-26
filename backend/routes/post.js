@@ -40,7 +40,8 @@ multer({storage: storage}).single("image"),
     imagePath: url + '/images/' + req.file.filename,
     creator: req.userData.userId
   });
-  post.save().then(response => {
+  post.save()
+  .then(response => {
     res.status(201).json({
       message: 'Posts Added successfully!!',
       post: {
@@ -48,6 +49,11 @@ multer({storage: storage}).single("image"),
         id: response._id // overide the property
       }
     });
+  })
+  .catch(error => {
+    res.status(401).json({
+      message: "Post not created!!"
+    })
   });
 
 });
@@ -77,17 +83,28 @@ router.get('', (req, res, next) => {
         posts: fetchedPost,
         maxPosts: count
       });
+    })
+    .catch(error => {
+      res.status(401).json({
+        message: "Fetching posts failed!!"
+      })
     });
-});
+  });
 
 router.get('/:id', (req, res, next) => {
-  Post.findById(req.params.id).then(post => {
+  Post.findById(req.params.id)
+  .then(post => {
     if(post) {
       res.status(200).json(post);
     } else {
       res.status(404).json({message: "Post not found!!"})
     }
   })
+  .catch(error => {
+    res.status(401).json({
+      message: "Fetching post failed!!"
+    })
+  });
 })
 
 router.delete("/:id", checkAuth, (req, res, next) => {
@@ -102,7 +119,11 @@ router.delete("/:id", checkAuth, (req, res, next) => {
         message: 'UnAuthorized User!!'
       });
     }
-
+  })
+  .catch(error => {
+    res.status(401).json({
+      message: "Deleting posts failed!!"
+    })
   });
 });
 
@@ -136,6 +157,11 @@ multer({storage: storage}).single("image"),
       });
     }
   })
+  .catch(error => {
+    res.status(401).json({
+      message: "Post not updated!!"
+    })
+  });
 });
 
 module.exports = router;
