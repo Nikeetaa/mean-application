@@ -91,12 +91,18 @@ router.get('/:id', (req, res, next) => {
 })
 
 router.delete("/:id", checkAuth, (req, res, next) => {
-  Post.deleteOne({_id: req.params.id})
+  Post.deleteOne({_id: req.params.id, creator: req.userData.userId })
   .then(result => {
-    console.log(result);
-    res.status(201).json({
-      message: 'Posts Deleted successfully!!'
-    });
+    if(result.n > 0) {
+      res.status(201).json({
+        message: 'Posts Deleted successfully!!'
+      });
+    } else {
+      res.status(201).json({
+        message: 'UnAuthorized User!!'
+      });
+    }
+
   });
 });
 
@@ -116,13 +122,19 @@ multer({storage: storage}).single("image"),
     content: req.body.content,
     imagePath: imagePath
   });
-  console.log(req.body);
-  Post.updateOne({_id: req.params.id}, post).then(result => {
-    res.status(200).json({
-      message: 'Posts Updated successfully!!'
-    });
-  })
 
+  Post.updateOne({_id: req.params.id, creator: req.userData.userId }, post)
+  .then(result => {
+    if(result.n > 0) {
+      res.status(200).json({
+        message: 'Posts Updated successfully!!'
+      });
+    } else {
+      res.status(401).json({
+        message: 'UnAuthorized User!!'
+      });
+    }
+  })
 });
 
 module.exports = router;
