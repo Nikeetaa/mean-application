@@ -50,12 +50,12 @@ export class AuthService {
         this.token = token;
         if(token) {
           const expriresIn = response.expiresIn;
-          // set the timer
-          this.tokenTimer = setTimeout(() => {
-            this.logout();
-          }, expriresIn * 1000);
+          this.setAuthTimer(expriresIn);
           this.isAuthenticated = true;
           this.authStatusListener.next(true);
+          const now = new Date();
+          const expirationDate = new Date(now.getTime() + expriresIn * 1000);
+          this.saveAuthData(token, expirationDate);
           this.router.navigate(['/']);
         }
     })
@@ -66,6 +66,53 @@ export class AuthService {
     this.isAuthenticated = false;
     this.authStatusListener.next(false); //sends all users of subscription that value is changed
     clearTimeout(this.tokenTimer); // clear timer if manually logged out
+    this.clearAuthData();
     this.router.navigate(['/']);
+  }
+
+  private saveAuthData(token: string, expirationDate: Date) {
+    localStorage.setItem("token", token);
+    localStorage.setItem("expirationDate", expirationDate.toISOString());
+  }
+
+  private clearAuthData() {
+    localStorage.removeItem("token");
+    localStorage.removeItem("expirationDate");
+  }
+
+  private getAuthData() {
+    const token = localStorage.getItem("token");
+    const expirationDate = localStorage.getItem("expirationDate");
+    if(!token || !expirationDate) {
+      return;
+    }
+    return {
+      token: token,
+      expirationDate: new Date(expirationDate)
+    };
+  }
+
+  autoAuthUser() {
+    const authData = this.getAuthData();
+    if(!authData) {
+      return;
+    }
+
+    const now = new Date();
+    const expiresIn = authData.expirationDate.getTime() - now.getTime();
+
+    if(expiresIn > 0) {
+      this.token = authData.token;
+      this.isAuthenticated = true;
+      this.setAuthTimer(expiresIn / 1000);
+      this.authStatusListener.next(true);
+    }
+  }
+
+  setAuthTimer(duration: number) {
+    // set the timer
+    this.tokenTimer = setTimeout(() => {
+      this.logout();
+    }, duration * 1000);
   }
 }
