@@ -13,7 +13,7 @@ export class AuthService {
   private isAuthenticated = false;
   private token: string;
   private authStatusListener = new Subject<boolean>();
-  private tokenTimer: NodeJS.Timer;
+  private tokenTimer: any;
 
   constructor(private http: HttpClient, private router: Router) { }
 
@@ -35,7 +35,7 @@ export class AuthService {
       'http://localhost:3001/api/user/signup',
       authdata
       ).subscribe(response => {
-        console.log(response);
+        this.router.navigate(['/']);
       });
   }
 
