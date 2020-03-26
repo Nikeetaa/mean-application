@@ -37,7 +37,13 @@ export class PostsService {
   }
 
   getPost(id: string) {
-    return this.http.get<{_id: string, title: string, content: string, imagePath: string}>('http://localhost:3001/api/posts/' + id);
+    return this.http.get<{
+      _id: string;
+      title: string;
+      content: string;
+      imagePath: string;
+      creator: string;
+    }>('http://localhost:3001/api/posts/' + id);
   }
 
   getPostUpdateListener() {
@@ -60,7 +66,7 @@ export class PostsService {
   }
 
   editPost(id: string, title: string, content: string, image: File | string) {
-    let postData;
+    let postData: Post | FormData;
     if(typeof(image) === "object") {
       //new image
       postData = new FormData();
@@ -70,7 +76,7 @@ export class PostsService {
       postData.append('image', image, title);
     } else {
       postData = {
-        id, title, content, imagePath: image
+        id, title, content, imagePath: image, creator: null
       }
     }
 
