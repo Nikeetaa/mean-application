@@ -37,7 +37,8 @@ multer({storage: storage}).single("image"),
   const post = new Post({
     title: req.body.title,
     content: req.body.content,
-    imagePath: url + '/images/' + req.file.filename
+    imagePath: url + '/images/' + req.file.filename,
+    creator: req.userData.userId
   });
   post.save().then(response => {
     res.status(201).json({
