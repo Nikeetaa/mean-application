@@ -1,10 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { PostsService } from '../posts.service';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { Post } from '../post.model';
 import { mimeType } from './mime-type.validator';
+import { Subscription } from 'rxjs';
+import { AuthService } from 'src/app/auth/auth.service';
 
 @Component({
   selector: 'app-post-create',
@@ -12,7 +14,7 @@ import { mimeType } from './mime-type.validator';
   styleUrls: ['./post-create.component.css']
 })
 
-export class PostCreateComponent implements OnInit{
+export class PostCreateComponent implements OnInit, OnDestroy{
 
   private mode = 'create';
   private postId: string;
@@ -20,11 +22,18 @@ export class PostCreateComponent implements OnInit{
   isLoading = false;
   form: FormGroup;
   imagePreview: string;
+  private authStatusSub: Subscription;
 
   constructor(public postsService: PostsService,
-              public route: ActivatedRoute) {}
+              public route: ActivatedRoute,
+              public authService: AuthService) {}
 
   ngOnInit() {
+    this.authStatusSub = this.authService
+    .getAuthStatusListener()
+    .subscribe(authStatus => {
+      this.isLoading = false; //used to stop loader if it has any error
+    })
     this.form = new FormGroup({
       title: new FormControl(null, {validators: [Validators.required, Validators.minLength(3)]}),
       content: new FormControl(null, {validators: [Validators.required]}),
@@ -90,6 +99,10 @@ export class PostCreateComponent implements OnInit{
     }
 
     this.form.reset();
+  }
+
+  ngOnDestroy() {
+    this.authStatusSub.unsubscribe();
   }
 
 }
